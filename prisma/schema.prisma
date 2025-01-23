@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql" // Change to "postgresql" or another provider if applicable
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  CustomerID Int     @id @default(autoincrement())
+  Name       String  @db.VarChar(100)
+  Address    String  @db.VarChar(255)
+  Email      String  @unique @db.VarChar(100)
+  Orders     Order[]
+}
+
+model Item {
+  ItemID       Int            @id @default(autoincrement())
+  Name         String         @db.VarChar(100)
+  Quantity     Int
+  Price        Decimal        @db.Decimal(10, 2)
+  OrderDetails OrderDetails[]
+}
+
+model Order {
+  OrderID      Int            @id @default(autoincrement())
+  CustomerID   Int
+  OrderDate    DateTime       @default(now())
+  Customer     Customer       @relation(fields: [CustomerID], references: [CustomerID], onDelete: Cascade)
+  OrderDetails OrderDetails[]
+}
+
+model OrderDetails {
+  OrderDetailsID Int     @id @default(autoincrement())
+  OrderID        Int
+  ItemID         Int
+  Quantity       Int
+  Price          Decimal @db.Decimal(10, 2)
+  Order          Order   @relation(fields: [OrderID], references: [OrderID], onDelete: Cascade)
+  Item           Item    @relation(fields: [ItemID], references: [ItemID], onDelete: Cascade)
+}
