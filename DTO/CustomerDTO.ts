@@ -1,9 +1,8 @@
 import {OrderDTO} from "./OrderDTO";
 
 export interface CustomerDTO{
-        id:string;
+        id:number;
         name:string;
         address:string;
-        email:string;
-        order:OrderDTO[]
+        email:string
 }
