@@ -1,5 +1,3 @@
-import {OrderDTO} from "./OrderDTO";
-
 export interface CustomerDTO{
         id:number;
         name:string;

@@ -3,7 +3,7 @@ import {OrderDetailsDTO} from "./OrderDetailsDTO";
 
 export interface OrderDTO{
     orderId:number;
-    customerId:CustomerDTO;
     orderDate:Date;
+    customerId:CustomerDTO;
     orderDetails:OrderDetailsDTO[]
 }
