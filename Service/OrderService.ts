@@ -10,7 +10,7 @@ export async function addOrder(orderDto:OrderDTO){
                 OrderDate:new Date(),
                 CustomerID:orderDto.customerId.id,
                 OrderDetails:{
-                    connect:
+                    connect:orderDto.orderDetails.map(order=>({OrderDetailsID:order.OrderID}))
                 }
             }
         })
