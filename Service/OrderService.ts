@@ -1,21 +1,20 @@
 import prisma from "../prisma/Client";
 export async function addOrder(orderDto: { customerId: number; orderDetails: any[] }) {
     console.log('Received orderDto:', orderDto);
+    // @ts-ignore
+    const notifications = [];
 
     try {
         const { customerId, orderDetails } = orderDto;
 
-        // Validate input
         if (!customerId || !orderDetails || orderDetails.length === 0) {
             throw new Error('Invalid input. Provide a customerId and at least one order detail.');
         }
 
-        // Wrap in transaction
+
         await prisma.$transaction(async (prisma) => {
-            // Extract item IDs from orderDetails
             const itemIds = orderDetails.map((detail) => detail.ItemID);
 
-            // Fetch items from database
             const items = await prisma.item.findMany({
                 where: {
                     ItemID: { in: itemIds },
@@ -27,18 +26,16 @@ export async function addOrder(orderDto: { customerId: number; orderDetails: any
                 },
             });
 
-            // Map items to a Map object for quick access
             const itemMap = new Map(
                 items.map((item) => [
                     item.ItemID,
                     {
-                        price: item.Price, // Store the raw Price
-                        stock: item.Quantity, // Store the raw Quantity
+                        price: item.Price,
+                        stock: item.Quantity,
                     },
                 ])
             );
 
-            // Prepare orderDetails with calculated prices
             const orderDetailsWithTotal = orderDetails.map((detail) => {
                 const itemData = itemMap.get(detail.ItemID);
 
@@ -52,40 +49,41 @@ export async function addOrder(orderDto: { customerId: number; orderDetails: any
                     );
                 }
 
-                // Ensure price is a valid number and fallback to a default (e.g., 0)
                 const price = itemData.price;
-                // @ts-ignore
                 if (price === null || price === undefined || isNaN(price)) {
                     throw new Error(`Invalid price for ItemID: ${detail.ItemID}.`);
                 }
 
-                // Ensure quantity is a valid number
                 const quantity = detail.Quantity;
                 if (isNaN(quantity) || quantity <= 0) {
                     throw new Error(`Invalid quantity for ItemID: ${detail.ItemID}.`);
                 }
 
-             
                 return {
                     ItemID: detail.ItemID,
                     Quantity: quantity,
-                    // @ts-ignore
-                    Price: price * quantity, // Calculate total price
+                    Price: price * quantity,
                 };
             });
 
-            // Update stock in the database
             for (const detail of orderDetailsWithTotal) {
                 const currentStock = itemMap.get(detail.ItemID)?.stock || 0;
+                const updatedStock = currentStock - detail.Quantity;
+
                 await prisma.item.update({
                     where: { ItemID: detail.ItemID },
                     data: {
-                        Quantity: currentStock - detail.Quantity, // Reduce stock
+                        Quantity: updatedStock,
                     },
                 });
+
+                // If stock is low, add a notification
+                if (updatedStock < 10) {
+                    const notification = await sendLowStockNotification(detail.ItemID, updatedStock);
+                    notifications.push(notification);
+                }
             }
 
-            // Create the order with calculated total prices
             await prisma.order.create({
                 data: {
                     OrderDate: new Date(),
@@ -102,10 +100,24 @@ export async function addOrder(orderDto: { customerId: number; orderDetails: any
         });
 
         console.log('Order successfully created and stock updated!');
+        return {
+            success: true,
+            message: 'Order successfully created and stock updated!',
+            // @ts-ignore
+            notifications: notifications,
+        };
     } catch (err: any) {
         console.error('Error creating order:', err.message || err);
+        return {
+            success: false,
+            message: err.message || 'Error creating order.',
+            // @ts-ignore
+            notifications: notifications,
+        };
     }
 }
+
+
 export async function deleteOrder(id: number) {
     try {
         const result = await prisma.order.deleteMany({
@@ -123,3 +135,29 @@ export async function deleteOrder(id: number) {
     }
 }
 
+
+
+
+// A generic function to send notifications
+async function sendLowStockNotification(itemId: number, remainingStock: number) {
+    try {
+        // Prepare the notification message
+        const message = `ItemID ${itemId} is running low on stock. Only ${remainingStock} units remaining.`;
+
+        // Example: Instead of logging, return a structured response for the frontend
+        return {
+            success: true,
+            message: message,
+            itemId: itemId,
+            remainingStock: remainingStock,
+        };
+    } catch (error) {
+        // Handle errors and return a failure response
+        return {
+            success: false,
+            message: `Failed to send low stock notification for ItemID: ${itemId}`,
+            // @ts-ignore
+            error: error.message || error,
+        };
+    }
+}
