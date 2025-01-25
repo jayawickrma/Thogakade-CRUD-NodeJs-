@@ -19,7 +19,7 @@ model Item {
   ItemID       Int            @id @default(autoincrement())
   Name         String         @db.VarChar(100)
   Quantity     Int
-  Price        Decimal        @db.Decimal(10, 2)
+  Price        Float
   OrderDetails OrderDetails[]
 }
 
