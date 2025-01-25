@@ -5,7 +5,7 @@ export async function addOrder(orderDto: { customerId: number; orderDetails: any
     try {
         const { customerId, orderDetails } = orderDto;
 
-        // Validate input
+
         if (!customerId || !orderDetails || orderDetails.length === 0) {
             throw new Error('Invalid input. Provide a customerId and at least one order detail.');
         }
@@ -15,7 +15,7 @@ export async function addOrder(orderDto: { customerId: number; orderDetails: any
             // Extract item IDs from orderDetails
             const itemIds = orderDetails.map((detail) => detail.ItemID);
 
-            // Fetch items from database
+
             const items = await prisma.item.findMany({
                 where: {
                     ItemID: { in: itemIds },
@@ -32,8 +32,8 @@ export async function addOrder(orderDto: { customerId: number; orderDetails: any
                 items.map((item) => [
                     item.ItemID,
                     {
-                        price: item.Price, // Store the raw Price
-                        stock: item.Quantity, // Store the raw Quantity
+                        price: item.Price,
+                        stock: item.Quantity,
                     },
                 ])
             );
@@ -52,25 +52,25 @@ export async function addOrder(orderDto: { customerId: number; orderDetails: any
                     );
                 }
 
-                // Ensure price is a valid number and fallback to a default (e.g., 0)
+
                 const price = itemData.price;
                 // @ts-ignore
                 if (price === null || price === undefined || isNaN(price)) {
                     throw new Error(`Invalid price for ItemID: ${detail.ItemID}.`);
                 }
 
-                // Ensure quantity is a valid number
+                // check the quentity
                 const quantity = detail.Quantity;
                 if (isNaN(quantity) || quantity <= 0) {
                     throw new Error(`Invalid quantity for ItemID: ${detail.ItemID}.`);
                 }
 
-             
+
                 return {
                     ItemID: detail.ItemID,
                     Quantity: quantity,
                     // @ts-ignore
-                    Price: price * quantity, // Calculate total price
+                    Price: price * quantity,
                 };
             });
 
@@ -80,12 +80,12 @@ export async function addOrder(orderDto: { customerId: number; orderDetails: any
                 await prisma.item.update({
                     where: { ItemID: detail.ItemID },
                     data: {
-                        Quantity: currentStock - detail.Quantity, // Reduce stock
+                        Quantity: currentStock - detail.Quantity,
                     },
                 });
             }
 
-            // Create the order with calculated total prices
+
             await prisma.order.create({
                 data: {
                     OrderDate: new Date(),
