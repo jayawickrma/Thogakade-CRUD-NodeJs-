@@ -144,7 +144,6 @@ async function sendLowStockNotification(itemId: number, remainingStock: number) 
         // Prepare the notification message
         const message = `ItemID ${itemId} is running low on stock. Only ${remainingStock} units remaining.`;
 
-        // Example: Instead of logging, return a structured response for the frontend
         return {
             success: true,
             message: message,
@@ -152,7 +151,7 @@ async function sendLowStockNotification(itemId: number, remainingStock: number) 
             remainingStock: remainingStock,
         };
     } catch (error) {
-        // Handle errors and return a failure response
+
         return {
             success: false,
             message: `Failed to send low stock notification for ItemID: ${itemId}`,
