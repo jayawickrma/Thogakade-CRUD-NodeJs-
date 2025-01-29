@@ -1,18 +1,19 @@
 import {Router} from "express";
-import UserCOntroller from "../../Controlller/UserCOntroller";
+import UserController from "../../Controlller/UserCOntroller";
 
 class AuthRouter{
     router:Router;
-    userController:UserCOntroller
+    userController:UserController
 
     constructor() {
         this.router =Router()
-        this.userController =new UserCOntroller()
+        this.userController =new UserController()
         this.initialStates()
     }
      initialStates():void{
         this.router.post('/signIn',this.userController.signIn)
          this.router.post('/signUp',this.userController.signUp)
+         this.router.post('/refreshToken',this.userController.refreshToken)
     }
 }
 const auth:AuthRouter =new AuthRouter()
