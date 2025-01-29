@@ -7,8 +7,8 @@ const port =3000
 
 app.use(express.json());
 app.use(express.urlencoded({extended:true}))
-app.use('/api/store',mainRouter.router)
 app.use(authenticateToken)
+app.use('/api/store',mainRouter.router)
 
 app.listen(port,()=>{
     console.log("server is started on port number : "+port)
