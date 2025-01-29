@@ -1,5 +1,7 @@
 import {Router} from "express";
 import CustomerController from "../../Controlller/CustomerController";
+import {authenticateToken} from "../../Util/AuthenticateUser";
+import auth from "./AuthRouter";
 
 class CustomerRouter{
     router:Router
@@ -11,10 +13,10 @@ class CustomerRouter{
         this.initialRoutes();
     }
     initialRoutes():void{
-        this.router.post('/addCustomer',this.customerController.saveCustomer)
-        this.router.delete('/deleteCustomer',this.customerController.deleteCustomer)
-        this.router.put('/updateCustomer',this.customerController.updateCustomer)
-        this.router.get('/getAllCustomers',this.customerController.getAllCustomers)
+        this.router.post('/addCustomer',authenticateToken,this.customerController.saveCustomer)
+        this.router.delete('/deleteCustomer',authenticateToken,this.customerController.deleteCustomer)
+        this.router.put('/updateCustomer',authenticateToken,this.customerController.updateCustomer)
+        this.router.get('/getAllCustomers',authenticateToken,this.customerController.getAllCustomers)
     }
 }
 const customerRouter:CustomerRouter =new CustomerRouter()

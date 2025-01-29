@@ -1,5 +1,6 @@
 import {Router} from "express";
 import OrderController from "../../Controlller/OrderController";
+import {authenticateToken} from "../../Util/AuthenticateUser";
 
 class OrderRoutes{
     router:Router
@@ -11,10 +12,10 @@ class OrderRoutes{
         this.initialRoutes();
     }
     initialRoutes():void{
-        this.router.post('/addOrder',this.orderController.saveOder)
-        this.router.put('/updateOrder',this.orderController.updateOrder)
-        this.router.delete('/deleteOrder',this.orderController.deleteOrder)
-        this.router.get('/getAllOrders',this.orderController.getAllOrders)
+        this.router.post('/addOrder',authenticateToken,this.orderController.saveOder)
+        this.router.put('/updateOrder',authenticateToken,this.orderController.updateOrder)
+        this.router.delete('/deleteOrder',authenticateToken,this.orderController.deleteOrder)
+        this.router.get('/getAllOrders',authenticateToken,this.orderController.getAllOrders)
     }
 }
 const orderRoutes:OrderRoutes =new OrderRoutes()

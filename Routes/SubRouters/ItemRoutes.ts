@@ -1,5 +1,6 @@
 import {Router} from "express";
 import ItemController from "../../Controlller/ItemCOntroller";
+import {authenticateToken} from "../../Util/AuthenticateUser";
 
 class ItemRoutes{
     router:Router
@@ -11,10 +12,10 @@ class ItemRoutes{
         this.initialRoutes()
     }
     initialRoutes():void{
-        this.router.get('/getAllItems',this.itemController.getAllItems)
-        this.router.post('/addItem',this.itemController.saveItem)
-        this.router.put('/updateItem',this.itemController.updateItem)
-        this.router.delete('/deleteItem',this.itemController.deleteItem)
+        this.router.get('/getAllItems' ,authenticateToken,this.itemController.getAllItems)
+        this.router.post('/addItem',authenticateToken,this.itemController.saveItem)
+        this.router.put('/updateItem',authenticateToken,this.itemController.updateItem)
+        this.router.delete('/deleteItem',authenticateToken,this.itemController.deleteItem)
     }
 
 }
