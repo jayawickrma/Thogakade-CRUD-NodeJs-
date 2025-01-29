@@ -41,29 +41,14 @@ class UserController {
         if(!refresh_token)resp.status(401).send('No token provided');
 
         try{
-            const payload = jwt.verify(refresh_token as string, process.env.REFRESH_TOKEN as Secret) as {username: string, iat: number};
-            const token = jwt.sign({ username: payload.username }, process.env.SECRET_KEY as Secret, {expiresIn: "1m"});
+            const payload = jwt.verify(refresh_token as string, process.env.REFRESH_TOKEN as Secret) as {email: string, iat: number};
+            const token = jwt.sign({ email: payload.email }, process.env.SECRET_KEY as Secret, {expiresIn: "1m"});
             resp.json({accessToken : token});
         }catch(err){
             console.log(err);
             resp.status(401).json(err);
         }
     }
-    async authenticateToken(req : express.Request, res : express.Response, next : express.NextFunction){
-        const authHeader = req.headers.authorization;
-        const token = authHeader?.split(' ')[1];
 
-        console.log(token);
-        if(!token)res.status(401).send('No token provided');
-
-        try{
-            const payload = jwt.verify(token as string, process.env.SECRET_KEY as Secret) as {username: string, iat: number};
-            console.log(payload.username);
-            req.body.username = payload.username;
-            next();
-        }catch(err){
-            res.status(401).send(err);
-        }
-    }
 }
 export default UserController;
