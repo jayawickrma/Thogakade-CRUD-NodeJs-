@@ -16,9 +16,18 @@ export async function createUser(user:UserDTO){
     }
 
 }
-export async function verifyUser(varifYUser:UserDTO){
+export async function verifyUser(email:any){
     try{
-
+         const find =  await prisma.user.findUnique({
+                where:{
+                    email:email
+                }
+            })
+        if (!find){
+            return " Cannot Find user..."
+        }else {
+            return find
+        }
     }catch (err){
         console.log(err)
     }
