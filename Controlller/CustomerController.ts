@@ -19,7 +19,7 @@ class CustomerController{
         console.log(id)
         try{
             await deleteCustomer(id)
-                resp.status(200).send(id + " deleted successfully...")
+                resp.status(200).json(id + " deleted successfully...")
         }catch (err){
             resp.status(500).send(err)
         }
