@@ -117,7 +117,6 @@ export async function addOrder(orderDto: { customerId: number; orderDetails: any
     }
 }
 
-
 export async function deleteOrder(id: number) {
     try {
         const result = await prisma.order.deleteMany({
@@ -134,8 +133,6 @@ export async function deleteOrder(id: number) {
         throw err;
     }
 }
-
-
 
 
 // A generic function to send notifications
